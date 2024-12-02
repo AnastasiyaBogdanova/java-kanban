@@ -1,54 +1,43 @@
 import java.util.ArrayList;
 
-public class Epic extends Task{
-    ArrayList<Subtask> subTasks;
+public class Epic extends Task {
+    private Subtask subTask;
+    private ArrayList<Integer> subTasksId;
 
-
-    public Epic(String name, String description, Status status, int id) {
-        super(name, description, status, id);
-        this.subTasks = new ArrayList<>();
+    public ArrayList<Integer> getSubTasksId() {
+        return subTasksId;
     }
 
-    public Epic(String name, String description, Status status) {
-        super(name, description, status);
-        this.subTasks = new ArrayList<>();
+    public Epic(String name, String description) {
+        super(name, description, Status.NEW);
+        this.subTasksId = new ArrayList<>();
     }
 
-    public Epic(String name, String description, Status status, int id, ArrayList<Subtask> subTasks) {
-        super(name, description, status, id);
-        this.subTasks = subTasks;
+    public Epic(int id, String name, String description) {
+        super(id, name, description, Status.NEW);
     }
 
-    void setStatus(Status statusSubTask){
-        Status summaryStatus = Status.NEW;
-        if (statusSubTask.equals(Status.IN_PROGRESS)){
-            summaryStatus = Status.IN_PROGRESS;
-        }else {
-            for (Subtask subTask : subTasks) {
-                if(!statusSubTask.equals(subTask.status)){
-                    summaryStatus = Status.IN_PROGRESS;
-                    break;
-                } else {
-                    summaryStatus = statusSubTask;
-                }
-            }
-        }
-        this.status = summaryStatus;
-   }
+    public void removeSubTask(int subTaskId) {
+        subTasksId.remove(Integer.valueOf(subTaskId));
+    }
 
-    public void setSubTask(Subtask subTask) {
-        subTasks.add(subTask);
-        setStatus(subTask.status);
+
+    public void setSubTask(int subTaskId) {
+        subTasksId.add(subTaskId);
+    }
+
+    public void setSubTasksId(ArrayList<Integer> subTasksId) {
+        this.subTasksId = subTasksId;
     }
 
     @Override
     public String toString() {
         return "Epic{" +
-                "subTasks=" + subTasks +
+                "subTasksId=" + subTasksId +
+                ", id=" + id +
                 ", name='" + name + '\'' +
                 ", description='" + description + '\'' +
                 ", status=" + status +
-                ", id=" + id +
                 '}';
     }
 }

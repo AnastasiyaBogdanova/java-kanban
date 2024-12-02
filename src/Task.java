@@ -1,13 +1,11 @@
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Objects;
 
 public class Task {
-    String name;
-    String description;
-    Status status;
-    int id;
-    Manager manager;
+    protected int id;
+    protected String name;
+    protected String description;
+    protected Status status;
+    protected Manager manager;
 
     public Task(String name, String description, Status status) {
         this.name = name;
@@ -15,11 +13,11 @@ public class Task {
         this.status = status;
     }
 
-    public Task(String name, String description, Status status, int id) {
+    public Task(int id, String name, String description, Status status) {
+        this.id = id;
         this.name = name;
         this.description = description;
         this.status = status;
-        this.id = id;
     }
 
     public int getId() {
@@ -30,13 +28,41 @@ public class Task {
         this.id = id;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Task task)) return false;
+        return id == task.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
+
     @Override
     public String toString() {
         return "Task{" +
-                "name='" + name + '\'' +
+                "id=" + id +
+                ", name='" + name + '\'' +
                 ", description='" + description + '\'' +
                 ", status=" + status +
-                ", id=" + id +
                 '}';
     }
 }

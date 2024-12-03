@@ -41,10 +41,11 @@ public class Manager {
     }
 
     public void removeSubTasks() {
-        for (Integer i : subTaskMap.keySet()) {
-            updateEpicStatus(subTaskMap.get(i).getEpicId());
-        }
         subTaskMap.clear();
+        for (Integer i : epicMap.keySet()) {
+            epicMap.get(i).setSubTasksId(new ArrayList<>());
+            epicMap.get(i).setStatus(Status.NEW);
+        }
     }
 
     //получение объектов по id
@@ -89,7 +90,6 @@ public class Manager {
         subTask.setId(getNextId());
         subTaskMap.put(subTask.getId(), subTask);
         epicMap.get(subTask.getEpicId()).getSubTasksId().add(subTask.getId());
-        //        setSubTask(subTask.getId());
         updateEpicStatus(subTask.getEpicId());
         return subTask;
     }

@@ -15,20 +15,4 @@ class SubtaskTest {
         Subtask subTask2 = new Subtask(1, "Покормить собаку", "мясом", Status.IN_PROGRESS, 2);
         Assertions.assertEquals(subTask1, subTask2, "Не равны по Id");
     }
-
-    @BeforeEach
-    void setUp() {
-    }
-
-    @AfterEach
-    void tearDown() {
-    }
-
-    @Test
-    void getEpicId() {
-    }
-
-    @Test
-    void testToString() {
-    }
 }

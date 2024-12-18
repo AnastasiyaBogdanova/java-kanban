@@ -12,17 +12,16 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class InMemoryHistoryManagerTest {
     private HistoryManager historyManager;
-    private Task task;
 
     @BeforeEach
     void createHistoryManager() {
         historyManager = Managers.getDefaultHistory();
-        task = new Task(1, "Покормить кота", "кормом", Status.NEW);
-        historyManager.add(task);
     }
 
     @Test
     void getHistory() {
+        Task task = new Task(1, "Покормить кота", "кормом", Status.NEW);
+        historyManager.add(task);
         Task taskExpected = new Task(1, "Покормить кота", "кормом", Status.NEW);
         final List<Task> history = historyManager.getHistory();
         assertEquals(taskExpected, history.get(0), "Не равны");
@@ -30,6 +29,8 @@ class InMemoryHistoryManagerTest {
 
     @Test
     void addObjectInHistory() {
+        Task task = new Task(1, "Покормить кота", "кормом", Status.NEW);
+        historyManager.add(task);
         final List<Task> history = historyManager.getHistory();
         assertNotNull(history, "История не пустая.");
         assertEquals(1, history.size(), "История не пустая.");
@@ -37,10 +38,10 @@ class InMemoryHistoryManagerTest {
 
     @Test
     void addTenPlusOneObjectInHistory() {
-        //task (1,"Покормить кота", "кормом", Status.NEW) уже добавлен в историю.
         // при добавлении 11 элемента должен удалиться
-
+        Task task1 = new Task(1, "Покормить кота", "кормом", Status.NEW);
         Task taskExpected = new Task(2, "Покормить собаку", "кормом", Status.NEW);
+
         Task task2 = new Task(2, "Покормить собаку", "кормом", Status.NEW);
         Task task3 = new Task(3, "Покормить хомяка", "кормом", Status.NEW);
         Task task4 = new Task(4, "Покормить кур", "кормом", Status.NEW);
@@ -51,6 +52,7 @@ class InMemoryHistoryManagerTest {
         Task task9 = new Task(9, "Покормить черепах", "кормом", Status.NEW);
         Task task10 = new Task(10, "Покормить мужа", "кормом", Status.NEW);
         Task task11 = new Task(11, "Покормить суслика", "кормом", Status.NEW);
+        historyManager.add(task1);
         historyManager.add(task2);
         historyManager.add(task3);
         historyManager.add(task4);
@@ -69,6 +71,8 @@ class InMemoryHistoryManagerTest {
 
     @Test
     void versionHistoryManager() {
+        Task task = new Task(1, "Покормить кота", "кормом", Status.NEW);
+        historyManager.add(task);
         TaskManager manager = Managers.getDefault();
         manager.addNewTask(task);
         manager.getTaskById(task.getId());

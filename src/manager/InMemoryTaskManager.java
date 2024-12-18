@@ -68,35 +68,32 @@ public class InMemoryTaskManager implements TaskManager {
     //получение объектов по id
     @Override
     public Task getTaskById(int id) {
-        if (taskMap.containsKey(id)) {
-            Task task = taskMap.get(id);
-            historyManager.add(task);
-            return task;
-        } else {
+        if (!taskMap.containsKey(id)) {
             return null;
         }
+        Task task = taskMap.get(id);
+        historyManager.add(task);
+        return task;
     }
 
     @Override
     public Subtask getSubTaskById(int id) {
-        if (subTaskMap.containsKey(id)) {
-            Subtask subTask = subTaskMap.get(id);
-            historyManager.add(subTask);
-            return subTask;
-        } else {
+        if (!subTaskMap.containsKey(id)) {
             return null;
         }
+        Subtask subTask = subTaskMap.get(id);
+        historyManager.add(subTask);
+        return subTask;
     }
 
     @Override
     public Epic getEpicById(int id) {
-        if (epicMap.containsKey(id)) {
-            Epic epic = epicMap.get(id);
-            historyManager.add(epic);
-            return epic;
-        } else {
+        if (!epicMap.containsKey(id)) {
             return null;
         }
+        Epic epic = epicMap.get(id);
+        historyManager.add(epic);
+        return epic;
     }
 
     //методы создания новых объектов
@@ -177,14 +174,15 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public ArrayList<Subtask> getSubtasksByEpic(int epicId) {
         Epic epic = epicMap.get(epicId);
-        if (epic != null) {
-            ArrayList<Subtask> subTasks = new ArrayList<>();
-            for (Integer i : epic.getSubTasksId()) {
-                subTasks.add(subTaskMap.get(i));
-            }
-            return subTasks;
+        if (epic == null) {
+            return null;
         }
-        return null;
+        ArrayList<Subtask> subTasks = new ArrayList<>();
+        for (Integer i : epic.getSubTasksId()) {
+            subTasks.add(subTaskMap.get(i));
+        }
+        return subTasks;
+
     }
 
     @Override

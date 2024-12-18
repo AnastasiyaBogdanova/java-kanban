@@ -16,28 +16,4 @@ class EpicTest {
         Assertions.assertEquals(epic1, epic2, "Не равны по Id");
 
     }
-
-    @BeforeEach
-    void setUp() {
-    }
-
-    @AfterEach
-    void tearDown() {
-    }
-
-    @Test
-    void getSubTasksId() {
-    }
-
-    @Test
-    void removeSubTask() {
-    }
-
-    @Test
-    void setSubTasksId() {
-    }
-
-    @Test
-    void testToString() {
-    }
 }

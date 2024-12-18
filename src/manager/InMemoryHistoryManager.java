@@ -16,13 +16,14 @@ public class InMemoryHistoryManager implements HistoryManager {
 
     @Override
     public void add(Task task) {
-        if (task != null) {
-            //при изменении задачи в истории остается версия задачи на момент ее просмотра
-            Task newTask = new Task(task.getId(), task.getName(), task.getDescription(), task.getStatus());
-            historyTasks.add(newTask);
-            if (historyTasks.size() > 10) {
-                historyTasks.removeFirst();
-            }
+        if (task == null) {
+            return;
+        }
+        //при изменении задачи в истории остается версия задачи на момент ее просмотра
+        Task newTask = new Task(task.getId(), task.getName(), task.getDescription(), task.getStatus());
+        historyTasks.add(newTask);
+        if (historyTasks.size() > 10) {
+            historyTasks.removeFirst();
         }
     }
 }

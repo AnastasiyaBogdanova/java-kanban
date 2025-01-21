@@ -103,4 +103,19 @@ class InMemoryTaskManagerTest {
         taskManager.addNewTask(task1);
         assertNotEquals(100, task.getId(), "Id равны");
     }
+
+    @Test
+    void removeSubTaskFromEpic() {
+        Epic epic = new Epic("Купить овощи", "важное дело");
+        taskManager.addNewEpic(epic);
+        Subtask subtask1 = new Subtask("Купить бобы", "важное дело", Status.NEW, epic.getId());
+        Subtask subtask2 = new Subtask("Купить помидоры", "важное дело", Status.NEW, epic.getId());
+        Subtask subtask3 = new Subtask("Купить огурцы", "важное дело", Status.NEW, epic.getId());
+        taskManager.addNewSubTask(subtask1);
+        taskManager.addNewSubTask(subtask2);
+        taskManager.addNewSubTask(subtask3);
+        assertEquals(3, taskManager.getAllSubTasks().size());
+        taskManager.removeSubTaskById(subtask2.getId());
+        assertEquals(2, taskManager.getAllSubTasks().size(), "Не удален таск");
+    }
 }

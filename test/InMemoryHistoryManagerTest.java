@@ -3,7 +3,9 @@ import manager.Managers;
 import manager.TaskManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import task.Epic;
 import task.Status;
+import task.Subtask;
 import task.Task;
 
 import java.util.List;
@@ -37,40 +39,25 @@ class InMemoryHistoryManagerTest {
     }
 
     @Test
-    void addTenPlusOneObjectInHistory() {
-        // при добавлении 11 элемента должен удалиться
+    void addEqualsObjectInHistory() {
+        // при добавлении такого же элемента более ранний должен удалиться
         Task task1 = new Task(1, "Покормить кота", "кормом", Status.NEW);
-        Task taskExpected = new Task(2, "Покормить собаку", "кормом", Status.NEW);
-
         Task task2 = new Task(2, "Покормить собаку", "кормом", Status.NEW);
-        Task task3 = new Task(3, "Покормить хомяка", "кормом", Status.NEW);
-        Task task4 = new Task(4, "Покормить кур", "кормом", Status.NEW);
-        Task task5 = new Task(5, "Покормить свинью", "кормом", Status.NEW);
-        Task task6 = new Task(6, "Покормить кролика", "кормом", Status.NEW);
-        Task task7 = new Task(7, "Покормить пауков", "кормом", Status.NEW);
-        Task task8 = new Task(8, "Покормить крыс", "кормом", Status.NEW);
-        Task task9 = new Task(9, "Покормить черепах", "кормом", Status.NEW);
-        Task task10 = new Task(10, "Покормить мужа", "кормом", Status.NEW);
-        Task task11 = new Task(11, "Покормить суслика", "кормом", Status.NEW);
+
+        Task taskExpected1 = new Task(2, "Покормить собаку", "кормом", Status.NEW);
+        Task taskExpected2 = new Task(1, "Покормить кота", "кормом", Status.NEW);
+
         historyManager.add(task1);
         historyManager.add(task2);
-        historyManager.add(task3);
-        historyManager.add(task4);
-        historyManager.add(task5);
-        historyManager.add(task6);
-        historyManager.add(task7);
-        historyManager.add(task8);
-        historyManager.add(task9);
-        historyManager.add(task10);
-        historyManager.add(task11);
-
+        historyManager.add(task1);
 
         final List<Task> history = historyManager.getHistory();
-        assertEquals(taskExpected, history.get(0), "Не равны");
+        assertEquals(taskExpected1, history.get(0), "Не равны");
+        assertEquals(taskExpected2, history.get(1), "Не равны");
     }
 
     @Test
-    void versionHistoryManager() {
+    void versionHistoryManager() { //если изменить что-то в таске, просмотреть таск, то останется 1 таск с обновленными полями
         Task task = new Task(1, "Покормить кота", "кормом", Status.NEW);
         historyManager.add(task);
         TaskManager manager = Managers.getDefault();
@@ -78,9 +65,34 @@ class InMemoryHistoryManagerTest {
         manager.getTaskById(task.getId());
         task.setName("Убрать лоток");
         manager.getTaskById(task.getId());
-        assertNotEquals(manager.getHistory().get(0).getName(), manager.getHistory().get(1).getName());
-        assertEquals("Покормить кота", manager.getHistory().get(0).getName());
-        assertEquals("Убрать лоток", manager.getHistory().get(1).getName());
+        assertEquals("Убрать лоток", manager.getHistory().get(0).getName());
+    }
+
+    @Test
+    void removeAllEpicsWithSubtasksFromHistory() {
+        TaskManager manager = Managers.getDefault();
+
+        Task task0 = new Task("Покормить кота", "кормом", Status.NEW);
+        Epic epic1 = new Epic("Подготовка к НГ", "Список дел");
+        manager.addNewTask(task0);
+        manager.addNewEpic(epic1);
+
+        Subtask subtask2 = new Subtask("Купить елку", "На рынке", Status.NEW, epic1.getId());
+        Subtask subtask3 = new Subtask("Заказать игрушки", "На озоне или вб", Status.NEW, epic1.getId());
+        manager.addNewSubTask(subtask2);
+        manager.addNewSubTask(subtask3);
+
+        manager.getTaskById(task0.getId());
+        manager.getSubTaskById(subtask2.getId());
+        manager.getEpicById(epic1.getId());
+
+        assertEquals(3, manager.getHistory().size(), "Не все добавлено в историю");
+
+        manager.removeEpicById(epic1.getId());
+
+        assertEquals(1, manager.getHistory().size(), "Сабтаск не удален");
+
+        assertEquals(false, manager.getHistory().contains(subtask2), "Сабтаск не удален");
     }
 
 }

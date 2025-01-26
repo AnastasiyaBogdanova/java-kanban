@@ -47,13 +47,23 @@ public class InMemoryTaskManager implements TaskManager {
     //методы удаления объектов
     @Override
     public void removeTasks() {
+        for (Integer i : taskMap.keySet()) {
+            historyManager.remove(i);
+        }
         taskMap.clear();
     }
 
     @Override
     public void removeEpics() {
+        for (Integer i : epicMap.keySet()) {
+            historyManager.remove(i);
+        }
         epicMap.clear();
+        for (Integer i : subTaskMap.keySet()) {
+            historyManager.remove(i);
+        }
         subTaskMap.clear();//при удаление всех эпиков удаляем все сабтаски
+
     }
 
     @Override
@@ -146,6 +156,7 @@ public class InMemoryTaskManager implements TaskManager {
     //методы удаления по id
     @Override
     public Task removeTaskById(int id) {
+        historyManager.remove(id);
         return taskMap.remove(id);
     }
 
@@ -154,7 +165,9 @@ public class InMemoryTaskManager implements TaskManager {
         ArrayList<Subtask> subtasks = getSubtasksByEpic(id);
         for (Subtask subtask : subtasks) {
             subTaskMap.remove(subtask.getId());
+            historyManager.remove(subtask.getId());
         }
+        historyManager.remove(id);
         return epicMap.remove(id);
     }
 
@@ -166,6 +179,7 @@ public class InMemoryTaskManager implements TaskManager {
             Epic epic = epicMap.get(epicId);
             epic.removeSubTask(id);
             updateEpicStatus(epicId);
+            historyManager.remove(id);
         }
         return subTaskMap.remove(id);
     }

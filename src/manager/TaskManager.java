@@ -3,6 +3,7 @@ package manager;
 import java.util.ArrayList;
 import java.util.List;
 
+import exception.ManagerSaveException;
 import task.Epic;
 import task.Subtask;
 import task.Task;
@@ -17,11 +18,11 @@ public interface TaskManager {
     ArrayList<Subtask> getAllSubTasks();
 
     //методы удаления объектов
-    void removeTasks();
+    void removeTasks() throws ManagerSaveException;
 
-    void removeEpics();
+    void removeEpics() throws ManagerSaveException;
 
-    void removeSubTasks();
+    void removeSubTasks() throws ManagerSaveException;
 
     //получение объектов по id
     Task getTaskById(int id);
@@ -31,25 +32,25 @@ public interface TaskManager {
     Epic getEpicById(int id);
 
     //методы создания новых объектов
-    Task addNewTask(Task task);
+    Task addNewTask(Task task) throws ManagerSaveException;
 
-    Epic addNewEpic(Epic epic);
+    Epic addNewEpic(Epic epic) throws ManagerSaveException;
 
-    Subtask addNewSubTask(Subtask subTask);
+    Subtask addNewSubTask(Subtask subTask) throws ManagerSaveException;
 
     //обновление объектов
-    Task updateTask(Task task);
+    Task updateTask(Task task) throws ManagerSaveException;
 
-    Subtask updateSubTask(Subtask subTask);
+    Subtask updateSubTask(Subtask subTask) throws ManagerSaveException;
 
-    Epic updateEpic(Epic epic);
+    Epic updateEpic(Epic epic) throws ManagerSaveException;
 
     //методы удаления по id
-    Task removeTaskById(int id);
+    Task removeTaskById(int id) throws ManagerSaveException;
 
-    Epic removeEpicById(int id);
+    Epic removeEpicById(int id) throws ManagerSaveException;
 
-    Subtask removeSubTaskById(int id);
+    Subtask removeSubTaskById(int id) throws ManagerSaveException;
 
     //получение всех сабтасков эпика
     ArrayList<Subtask> getSubtasksByEpic(int epicId);

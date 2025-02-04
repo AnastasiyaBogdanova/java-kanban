@@ -1,3 +1,4 @@
+import exception.ManagerSaveException;
 import manager.HistoryManager;
 import manager.Managers;
 import manager.TaskManager;
@@ -57,7 +58,7 @@ class InMemoryHistoryManagerTest {
     }
 
     @Test
-    void versionHistoryManager() { //если изменить что-то в таске, просмотреть таск, то останется 1 таск с обновленными полями
+    void versionHistoryManager() throws ManagerSaveException { //если изменить что-то в таске, просмотреть таск, то останется 1 таск с обновленными полями
         Task task = new Task(1, "Покормить кота", "кормом", Status.NEW);
         historyManager.add(task);
         TaskManager manager = Managers.getDefault();
@@ -69,7 +70,7 @@ class InMemoryHistoryManagerTest {
     }
 
     @Test
-    void removeAllEpicsWithSubtasksFromHistory() {
+    void removeAllEpicsWithSubtasksFromHistory() throws ManagerSaveException {
         TaskManager manager = Managers.getDefault();
 
         Task task0 = new Task("Покормить кота", "кормом", Status.NEW);

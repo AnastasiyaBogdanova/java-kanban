@@ -3,6 +3,7 @@ package task;
 import java.util.ArrayList;
 
 public class Epic extends Task {
+
     private ArrayList<Integer> subTasksId = new ArrayList<>();
 
     public ArrayList<Integer> getSubTasksId() {
@@ -24,18 +25,17 @@ public class Epic extends Task {
     }
 
     public void setSubTasksId(ArrayList<Integer> subTasksId) {
-
         this.subTasksId = subTasksId;
     }
 
     @Override
     public String toString() {
-        return "task.Epic{" +
-                "subTasksId=" + subTasksId +
-                ", id=" + id +
-                ", name='" + name + '\'' +
-                ", description='" + description + '\'' +
-                ", status=" + status +
-                '}';
+        return String.format("%s,%s,%s,%s,%s\n", id, TaskType.EPIC, name, status, description);
     }
+
+    public static Epic fromString(String value) {
+        String[] params = value.split(",");
+        return new Epic(Integer.parseInt(params[0]), params[2], params[4]);
+    }
+
 }

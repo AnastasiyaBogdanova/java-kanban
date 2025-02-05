@@ -1,6 +1,5 @@
 package manager;
 
-import exception.ManagerSaveException;
 import task.Epic;
 import task.Status;
 import task.Subtask;
@@ -47,7 +46,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     //методы удаления объектов
     @Override
-    public void removeTasks() throws ManagerSaveException {
+    public void removeTasks() {
         for (Integer i : taskMap.keySet()) {
             historyManager.remove(i);
         }
@@ -55,7 +54,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void removeEpics() throws ManagerSaveException {
+    public void removeEpics() {
         for (Integer i : epicMap.keySet()) {
             historyManager.remove(i);
         }
@@ -67,7 +66,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void removeSubTasks() throws ManagerSaveException {
+    public void removeSubTasks() {
         subTaskMap.clear();
         for (Integer i : epicMap.keySet()) {
             epicMap.get(i).setSubTasksId(new ArrayList<>());
@@ -108,21 +107,21 @@ public class InMemoryTaskManager implements TaskManager {
 
     //методы создания новых объектов
     @Override
-    public Task addNewTask(Task task) throws ManagerSaveException {
+    public Task addNewTask(Task task) {
         task.setId(getNextId());
         taskMap.put(task.getId(), task);
         return task;
     }
 
     @Override
-    public Epic addNewEpic(Epic epic) throws ManagerSaveException {
+    public Epic addNewEpic(Epic epic) {
         epic.setId(getNextId());
         epicMap.put(epic.getId(), epic);
         return epic;
     }
 
     @Override
-    public Subtask addNewSubTask(Subtask subTask) throws ManagerSaveException {
+    public Subtask addNewSubTask(Subtask subTask) {
         subTask.setId(getNextId());
         subTaskMap.put(subTask.getId(), subTask);
         epicMap.get(subTask.getEpicId()).getSubTasksId().add(subTask.getId());
@@ -132,20 +131,20 @@ public class InMemoryTaskManager implements TaskManager {
 
     //обновление объектов
     @Override
-    public Task updateTask(Task task) throws ManagerSaveException {
+    public Task updateTask(Task task) {
         taskMap.put(task.getId(), task);
         return task;
     }
 
     @Override
-    public Subtask updateSubTask(Subtask subTask) throws ManagerSaveException {
+    public Subtask updateSubTask(Subtask subTask) {
         subTaskMap.put(subTask.getId(), subTask);
         updateEpicStatus(subTask.getEpicId());
         return subTask;
     }
 
     @Override
-    public Epic updateEpic(Epic epic) throws ManagerSaveException {
+    public Epic updateEpic(Epic epic) {
         Epic oldEpic = epicMap.get(epic.getId());
         ArrayList<Integer> subtasks = oldEpic.getSubTasksId();
         epic.setSubTasksId(subtasks);
@@ -155,13 +154,13 @@ public class InMemoryTaskManager implements TaskManager {
 
     //методы удаления по id
     @Override
-    public Task removeTaskById(int id) throws ManagerSaveException {
+    public Task removeTaskById(int id) {
         historyManager.remove(id);
         return taskMap.remove(id);
     }
 
     @Override
-    public Epic removeEpicById(int id) throws ManagerSaveException {
+    public Epic removeEpicById(int id) {
         ArrayList<Subtask> subtasks = getSubtasksByEpic(id);
         for (Subtask subtask : subtasks) {
             subTaskMap.remove(subtask.getId());
@@ -172,7 +171,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public Subtask removeSubTaskById(int id) throws ManagerSaveException {
+    public Subtask removeSubTaskById(int id) {
         Subtask subtask = subTaskMap.get(id);
         if (subtask != null) {
             int epicId = subtask.getEpicId();

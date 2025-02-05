@@ -30,12 +30,13 @@ public class Epic extends Task {
 
     @Override
     public String toString() {
-        return String.format("%s,%s,%s,%s,%s\n", id, TaskType.EPIC, name, status, description);
-    }
-
-    public static Epic fromString(String value) {
-        String[] params = value.split(",");
-        return new Epic(Integer.parseInt(params[0]), params[2], params[4]);
+        return "task.Epic{" +
+                "subTasksId=" + subTasksId +
+                ", id=" + id +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", status=" + status +
+                '}';
     }
 
 }

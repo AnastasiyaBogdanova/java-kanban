@@ -72,12 +72,12 @@ public class Task {
 
     @Override
     public String toString() {
-        return String.format("%s,%s,%s,%s,%s\n", id, TaskType.TASK, name, status, description);
-    }
-
-    public static Task fromString(String value) {
-        String[] params = value.split(",");
-        return new Task(Integer.parseInt(params[0]), params[2], params[4], Status.valueOf(params[3]));
+        return "task.Task{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", status=" + status +
+                '}';
     }
 
 }

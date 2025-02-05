@@ -1,12 +1,6 @@
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import task.Epic;
-import task.Status;
-import task.Task;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class EpicTest {
     @Test

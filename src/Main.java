@@ -1,4 +1,5 @@
-import manager.*;
+import manager.FileBackedTaskManager;
+import manager.TaskManager;
 import task.Epic;
 import task.Status;
 import task.Subtask;
@@ -11,7 +12,7 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
         File tempFile = File.createTempFile("file", "_1");
-        FileBackedTaskManager fileManager = new FileBackedTaskManager(tempFile);
+        FileBackedTaskManager fileManager = FileBackedTaskManager.loadFromFile(tempFile);
         fileManager.addNewTask(new Task("Помыть посуду", "Она в раковине", Status.NEW));
         fileManager.addNewTask(new Task("Помыть пол", "Мистер пропер в шкафу", Status.NEW));
         Epic epic = new Epic("Посетить магазин", "Список покупок ниже");

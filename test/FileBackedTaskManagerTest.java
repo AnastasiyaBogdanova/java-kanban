@@ -1,6 +1,8 @@
 import manager.FileBackedTaskManager;
 import org.junit.jupiter.api.Test;
+import task.Epic;
 import task.Status;
+import task.Subtask;
 import task.Task;
 
 import java.io.File;
@@ -38,4 +40,19 @@ public class FileBackedTaskManagerTest {
         assertEquals(0, tasks.size(), "Неверное количество тасков.");
 
     }
+
+    @Test
+    void checkEqualsSubtasks() throws IOException {
+        File tempFile = File.createTempFile("file", "_1");
+        fileManager = FileBackedTaskManager.loadFromFile(tempFile);
+        Epic epic = new Epic("Посетить магазин", "Список покупок ниже");
+        fileManager.addNewEpic(epic);
+        fileManager.addNewSubTask(new Subtask("Хлеб", "Черный", Status.NEW, epic.getId()));
+
+        FileBackedTaskManager newFileManager = FileBackedTaskManager.loadFromFile(tempFile);
+
+        assertEquals(fileManager.getSubTaskById(1), newFileManager.getSubTaskById(1), "Не равны");
+
+    }
+
 }

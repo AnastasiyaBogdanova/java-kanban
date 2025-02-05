@@ -32,25 +32,25 @@ public interface TaskManager {
     Epic getEpicById(int id);
 
     //методы создания новых объектов
-    Task addNewTask(Task task) throws ManagerSaveException;
+    Task addNewTask(Task task);
 
-    Epic addNewEpic(Epic epic) throws ManagerSaveException;
+    Epic addNewEpic(Epic epic);
 
-    Subtask addNewSubTask(Subtask subTask) throws ManagerSaveException;
+    Subtask addNewSubTask(Subtask subTask);
 
     //обновление объектов
-    Task updateTask(Task task) throws ManagerSaveException;
+    Task updateTask(Task task);
 
-    Subtask updateSubTask(Subtask subTask) throws ManagerSaveException;
+    Subtask updateSubTask(Subtask subTask);
 
-    Epic updateEpic(Epic epic) throws ManagerSaveException;
+    Epic updateEpic(Epic epic);
 
     //методы удаления по id
-    Task removeTaskById(int id) throws ManagerSaveException;
+    Task removeTaskById(int id);
 
-    Epic removeEpicById(int id) throws ManagerSaveException;
+    Epic removeEpicById(int id);
 
-    Subtask removeSubTaskById(int id) throws ManagerSaveException;
+    Subtask removeSubTaskById(int id);
 
     //получение всех сабтасков эпика
     ArrayList<Subtask> getSubtasksByEpic(int epicId);

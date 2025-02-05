@@ -1,11 +1,10 @@
 package manager;
 
 import exception.ManagerSaveException;
-import file.FileConverter;
+import file.CsvConverter;
 import task.Epic;
 import task.Subtask;
 import task.Task;
-import task.TaskType;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -21,37 +20,15 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     private void save() {
         try (BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file, StandardCharsets.UTF_8))) {
-            bufferedWriter.write(title);
+            bufferedWriter.write(CsvConverter.getTitle());
             for (Task task : getAllTasks()) {
-                bufferedWriter.write(FileConverter.toCSV(
-                                task.getId(),
-                                TaskType.TASK,
-                                task.getName(),
-                                task.getStatus(),
-                                task.getDescription()
-                        )
-                );
+                bufferedWriter.write(CsvConverter.toCSV(task));
             }
             for (Epic epic : getAllEpics()) {
-                bufferedWriter.write(FileConverter.toCSV(
-                                epic.getId(),
-                                TaskType.EPIC,
-                                epic.getName(),
-                                epic.getStatus(),
-                                epic.getDescription()
-                        )
-                );
+                bufferedWriter.write(CsvConverter.toCSV(epic));
             }
             for (Subtask subTask : getAllSubTasks()) {
-                bufferedWriter.write(FileConverter.toCSV(
-                                subTask.getId(),
-                                TaskType.SUBTASK,
-                                subTask.getName(),
-                                subTask.getStatus(),
-                                subTask.getDescription(),
-                                subTask.getEpicId()
-                        )
-                );
+                bufferedWriter.write(CsvConverter.toCSV(subTask));
             }
         } catch (IOException e) {
             throw new ManagerSaveException("Произошла ошибка при сохранении" + e.getMessage());
@@ -147,25 +124,30 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         try (BufferedReader bufferedReader = new BufferedReader(new FileReader(file))) {
             while (bufferedReader.ready()) {
                 String line = bufferedReader.readLine();
-                String type = line.split(",")[1];
-                if (type.equals("SUBTASK")) {
-                    fileBackedTaskManager.subTaskMap.put(
-                            Integer.parseInt(line.split(",")[0]),
-                            FileConverter.subtaskFromString(line)
-                    );
-                    maxId = getMaxId(Integer.parseInt(line.split(",")[0]), maxId);// не вынесено в переменную, так как в заголовке строка , а не число
-                } else if (type.equals("TASK")) {
-                    fileBackedTaskManager.taskMap.put(
-                            Integer.parseInt(line.split(",")[0]),
-                            FileConverter.taskFromString(line)
-                    );
-                    maxId = getMaxId(Integer.parseInt(line.split(",")[0]), maxId);
-                } else if (type.equals("EPIC")) {
-                    fileBackedTaskManager.epicMap.put(
-                            Integer.parseInt(line.split(",")[0]),
-                            FileConverter.epicFromString(line)
-                    );
-                    maxId = getMaxId(Integer.parseInt(line.split(",")[0]), maxId);
+                String type = CsvConverter.getTaskType(line);
+                switch (type) {
+                    case "SUBTASK":
+                        fileBackedTaskManager.subTaskMap.put(
+                                CsvConverter.getId(line),
+                                CsvConverter.subtaskFromString(line)
+                        );
+                        // не вынесено в переменную, так как в заголовке строка , а не число
+                        maxId = getMaxId(CsvConverter.getId(line), maxId);
+                        break;
+                    case "TASK":
+                        fileBackedTaskManager.taskMap.put(
+                                CsvConverter.getId(line),
+                                CsvConverter.taskFromString(line)
+                        );
+                        maxId = getMaxId(CsvConverter.getId(line), maxId);
+                        break;
+                    case "EPIC":
+                        fileBackedTaskManager.epicMap.put(
+                                CsvConverter.getId(line),
+                                CsvConverter.epicFromString(line)
+                        );
+                        maxId = getMaxId(CsvConverter.getId(line), maxId);
+                        break;
                 }
             }
         } catch (IOException e) {

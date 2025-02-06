@@ -44,7 +44,7 @@ public class CsvConverter {
     public static Subtask subtaskFromString(String value) {
         String[] params = value.split(",");
         return new Subtask(
-                getId(value),
+                Integer.parseInt(value.split(",")[0]),
                 params[2],
                 params[4],
                 Status.valueOf(params[3]),
@@ -54,12 +54,12 @@ public class CsvConverter {
 
     public static Task taskFromString(String value) {
         String[] params = value.split(",");
-        return new Task(getId(value), params[2], params[4], Status.valueOf(params[3]));
+        return new Task(Integer.parseInt(value.split(",")[0]), params[2], params[4], Status.valueOf(params[3]));
     }
 
     public static Epic epicFromString(String value) {
         String[] params = value.split(",");
-        return new Epic(getId(value), params[2], params[4]);
+        return new Epic(Integer.parseInt(value.split(",")[0]), params[2], params[4]);
     }
 
     public static int getId(String value) {

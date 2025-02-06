@@ -154,8 +154,18 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             throw new ManagerSaveException("Произошла ошибка при сохранении" + e.getMessage());
         }
         fileBackedTaskManager.taskId = maxId + 1;
+        linkSubtasksToEpics(fileBackedTaskManager);
         return fileBackedTaskManager;
     }
+
+    private static void linkSubtasksToEpics(FileBackedTaskManager fileBackedTaskManager) {
+        for (Subtask s : fileBackedTaskManager.subTaskMap.values()) {
+            if (fileBackedTaskManager.epicMap.containsKey(s.getEpicId())) {
+                fileBackedTaskManager.epicMap.get(s.getEpicId()).getSubTasksId().add(s.getId());
+            }
+        }
+    }
+
 
     private static int getMaxId(int id, int maxId) {
         if (id > maxId) {

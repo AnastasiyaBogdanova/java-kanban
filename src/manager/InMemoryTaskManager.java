@@ -10,10 +10,10 @@ import java.util.HashMap;
 import java.util.List;
 
 public class InMemoryTaskManager implements TaskManager {
-    private int taskId = 0;
-    private HashMap<Integer, Task> taskMap;
-    private HashMap<Integer, Epic> epicMap;
-    private HashMap<Integer, Subtask> subTaskMap;
+    protected int taskId = 0;
+    protected HashMap<Integer, Task> taskMap;
+    protected HashMap<Integer, Epic> epicMap;
+    protected HashMap<Integer, Subtask> subTaskMap;
     private HistoryManager historyManager = Managers.getDefaultHistory();
 
     public InMemoryTaskManager() {
@@ -63,7 +63,6 @@ public class InMemoryTaskManager implements TaskManager {
             historyManager.remove(i);
         }
         subTaskMap.clear();//при удаление всех эпиков удаляем все сабтаски
-
     }
 
     @Override

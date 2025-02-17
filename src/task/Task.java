@@ -3,6 +3,7 @@ package task;
 import java.util.Objects;
 
 public class Task {
+
     protected Integer id;
     protected String name;
     protected String description;
@@ -78,4 +79,5 @@ public class Task {
                 ", status=" + status +
                 '}';
     }
+
 }

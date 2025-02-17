@@ -1,59 +1,55 @@
-import manager.Managers;
+import manager.FileBackedTaskManager;
 import manager.TaskManager;
 import task.Epic;
 import task.Status;
 import task.Subtask;
 import task.Task;
 
+import java.io.File;
+import java.io.IOException;
+
 public class Main {
-    public static void main(String[] args) {
-        TaskManager inMemoryTaskManager = Managers.getDefault();
-        inMemoryTaskManager.addNewTask(new Task("Помыть посуду", "Она в раковине", Status.NEW));
-        inMemoryTaskManager.addNewTask(new Task("Помыть пол", "Мистер пропер в шкафу", Status.NEW));
 
-        Epic epic = inMemoryTaskManager.addNewEpic(new Epic("Подготовка к НГ", "Список дел"));
-        inMemoryTaskManager.addNewSubTask(new Subtask("Купить елку", "На рынке", Status.NEW, epic.getId()));
-        inMemoryTaskManager.addNewSubTask(new Subtask("Заказать игрушки", "На озоне или вб", Status.NEW, epic.getId()));
-        inMemoryTaskManager.addNewSubTask(new Subtask("Заказать подарки", "На озоне или вб", Status.NEW, epic.getId()));
+    public static void main(String[] args) throws IOException {
+        File tempFile = File.createTempFile("file", "_1");
 
-        inMemoryTaskManager.addNewEpic(new Epic("Подготовка к ДР", "Список покупок"));
+        FileBackedTaskManager fileManager = FileBackedTaskManager.loadFromFile(tempFile);
+        fileManager.addNewTask(new Task("Помыть посуду", "Она в раковине", Status.NEW));
+        fileManager.addNewTask(new Task("Помыть пол", "Мистер пропер в шкафу", Status.NEW));
+        Epic epic = new Epic("Посетить магазин", "Список покупок ниже");
+        fileManager.addNewEpic(epic);
+        fileManager.addNewSubTask(new Subtask("Хлеб", "Черный", Status.NEW, epic.getId()));
+        fileManager.addNewSubTask(new Subtask("Булка", "С маком", Status.NEW, epic.getId()));
+        FileBackedTaskManager newFileManager = FileBackedTaskManager.loadFromFile(tempFile);
+        System.out.println("новый, создан из файла");
+        printAllTasks(newFileManager);
+        System.out.println();
+        FileBackedTaskManager newfileManager = FileBackedTaskManager.loadFromFile(tempFile);
+        System.out.println("старый, создан добавлением в файл");
+        printAllTasks(newfileManager);
+    }
 
-        inMemoryTaskManager.getTaskById(1);
-        inMemoryTaskManager.updateTask(new Task(1, "Помыть посуду изменено2222", "Она в раковине", Status.NEW));
-        inMemoryTaskManager.getEpicById(2);
-        inMemoryTaskManager.getTaskById(0);
-        inMemoryTaskManager.getTaskById(1);
-        inMemoryTaskManager.getEpicById(2);
-        inMemoryTaskManager.getEpicById(6);
-        inMemoryTaskManager.getSubTaskById(5);
-        inMemoryTaskManager.getSubTaskById(5);
-        inMemoryTaskManager.getSubTaskById(3);
-        inMemoryTaskManager.getSubTaskById(4);
-        inMemoryTaskManager.getEpicById(2);
-
-        System.out.println("История без повторов:");
-        for (Task task : inMemoryTaskManager.getHistory()) {
+    public static void printAllTasks(TaskManager manager) {
+        System.out.println("Задачи:");
+        for (Task task : manager.getAllTasks()) {
             System.out.println(task);
         }
+        System.out.println("Эпики:");
+        for (Task epic : manager.getAllEpics()) {
+            System.out.println(epic);
 
-        System.out.println();
-        inMemoryTaskManager.removeTaskById(0);
-        System.out.println("Удалили таск id=0:");
-        for (Task task : inMemoryTaskManager.getHistory()) {
-            System.out.println(task);
+            for (Task task : manager.getSubtasksByEpic(epic.getId())) {
+                System.out.println("--> " + task);
+            }
         }
-
-        System.out.println();
-        inMemoryTaskManager.removeEpicById(2);
-        System.out.println("Удалили эпик id=2:");
-        for (Task task : inMemoryTaskManager.getHistory()) {
-            System.out.println(task);
+        System.out.println("Подзадачи:");
+        for (Task subtask : manager.getAllSubTasks()) {
+            System.out.println(subtask);
         }
+        System.out.println("История:");
 
-        System.out.println();
-        inMemoryTaskManager.updateTask(new Task(1, "Помыть посуду изменено", "Она в раковине", Status.NEW));
-        for (Task task : inMemoryTaskManager.getHistory()) {
-            System.out.println(task);
+        for (Object o : manager.getHistory()) {
+            System.out.println(o);
         }
     }
 }

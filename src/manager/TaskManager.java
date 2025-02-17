@@ -1,11 +1,12 @@
 package manager;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import exception.ManagerSaveException;
 import task.Epic;
 import task.Subtask;
 import task.Task;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public interface TaskManager {
 
@@ -17,11 +18,11 @@ public interface TaskManager {
     ArrayList<Subtask> getAllSubTasks();
 
     //методы удаления объектов
-    void removeTasks();
+    void removeTasks() throws ManagerSaveException;
 
-    void removeEpics();
+    void removeEpics() throws ManagerSaveException;
 
-    void removeSubTasks();
+    void removeSubTasks() throws ManagerSaveException;
 
     //получение объектов по id
     Task getTaskById(int id);

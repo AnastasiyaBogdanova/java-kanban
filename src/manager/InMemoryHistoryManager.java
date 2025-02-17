@@ -3,8 +3,8 @@ package manager;
 import task.Task;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.HashMap;
+import java.util.List;
 
 public class InMemoryHistoryManager implements HistoryManager {
     private final HashMap<Integer, Node> historyTasks = new HashMap<>();

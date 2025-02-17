@@ -1,14 +1,14 @@
-import org.junit.jupiter.api.Assertions;
+import exception.ManagerSaveException;
+import manager.Managers;
+import manager.TaskManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import task.Epic;
 import task.Status;
 import task.Subtask;
 import task.Task;
-import manager.*;
 
 import java.util.List;
-
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -20,7 +20,7 @@ class InMemoryTaskManagerTest {
     private static int taskId;
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws ManagerSaveException {
         taskManager = Managers.getDefault();
         task = new Task("Купить хлеб", "важное дело", Status.NEW);
         epic1 = new Epic("Помыть кота", "с шампунем");
@@ -43,7 +43,7 @@ class InMemoryTaskManagerTest {
     }
 
     @Test
-    void addNewSubTaskAndReturnByIdAndCheckEquals() {
+    void addNewSubTaskAndReturnByIdAndCheckEquals() throws ManagerSaveException {
         Subtask subtask = new Subtask("нарезать салат", "из овощей", Status.NEW, epicId);
         final int subtaskId = taskManager.addNewSubTask(subtask).getId();
 
@@ -84,7 +84,7 @@ class InMemoryTaskManagerTest {
     }
 
     @Test
-    void returnAfterRemoveTask() {
+    void returnAfterRemoveTask() throws ManagerSaveException {
         Task task1 = new Task("Купить овощи", "важное дело", Status.NEW);
         Task task2 = new Task("Купить бобы", "важное дело", Status.NEW);
         taskManager.addNewTask(task1);
@@ -98,14 +98,14 @@ class InMemoryTaskManagerTest {
     }
 
     @Test
-    void generateIdAfterAddTaskWithCustomId() {
+    void generateIdAfterAddTaskWithCustomId() throws ManagerSaveException {
         Task task1 = new Task(100, "Купить овощи", "важное дело", Status.NEW);
         taskManager.addNewTask(task1);
         assertNotEquals(100, task.getId(), "Id равны");
     }
 
     @Test
-    void removeSubTaskFromEpic() {
+    void removeSubTaskFromEpic() throws ManagerSaveException {
         Epic epic = new Epic("Купить овощи", "важное дело");
         taskManager.addNewEpic(epic);
         Subtask subtask1 = new Subtask("Купить бобы", "важное дело", Status.NEW, epic.getId());

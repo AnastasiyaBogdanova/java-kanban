@@ -12,7 +12,6 @@ import java.nio.charset.StandardCharsets;
 public class FileBackedTaskManager extends InMemoryTaskManager {
 
     private final File file;
-    final String title = "id,type,name,status,description,epic\n";
 
     private FileBackedTaskManager(File file) {
         this.file = file;
@@ -131,6 +130,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                                 CsvConverter.getId(line),
                                 CsvConverter.subtaskFromString(line)
                         );
+                        fileBackedTaskManager.prioritizedTasks.add(CsvConverter.subtaskFromString(line));
                         // не вынесено в переменную, так как в заголовке строка , а не число
                         maxId = getMaxId(CsvConverter.getId(line), maxId);
                         break;
@@ -139,6 +139,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                                 CsvConverter.getId(line),
                                 CsvConverter.taskFromString(line)
                         );
+                        fileBackedTaskManager.prioritizedTasks.add(CsvConverter.taskFromString(line));
                         maxId = getMaxId(CsvConverter.getId(line), maxId);
                         break;
                     case "EPIC":
@@ -146,6 +147,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                                 CsvConverter.getId(line),
                                 CsvConverter.epicFromString(line)
                         );
+                        fileBackedTaskManager.prioritizedTasks.add(CsvConverter.epicFromString(line));
                         maxId = getMaxId(CsvConverter.getId(line), maxId);
                         break;
                 }
@@ -160,9 +162,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     private static void linkSubtasksToEpics(FileBackedTaskManager fileBackedTaskManager) {
         for (Subtask s : fileBackedTaskManager.subTaskMap.values()) {
-            if (fileBackedTaskManager.epicMap.containsKey(s.getEpicId())) {
-                fileBackedTaskManager.epicMap.get(s.getEpicId()).getSubTasksId().add(s.getId());
-            }
+            fileBackedTaskManager.epicMap.get(s.getEpicId()).getSubTasksId().add(s.getId());
         }
     }
 

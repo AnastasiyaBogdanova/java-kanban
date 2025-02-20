@@ -147,7 +147,6 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                                 CsvConverter.getId(line),
                                 CsvConverter.epicFromString(line)
                         );
-                        fileBackedTaskManager.prioritizedTasks.add(CsvConverter.epicFromString(line));
                         maxId = getMaxId(CsvConverter.getId(line), maxId);
                         break;
                 }

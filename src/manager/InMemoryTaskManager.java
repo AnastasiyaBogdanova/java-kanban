@@ -101,13 +101,13 @@ public class InMemoryTaskManager implements TaskManager {
     //методы создания новых объектов
     @Override
     public Task addNewTask(Task task) {
-        task.setId(getNextId());
         try {
             validateTask(task);
+            task.setId(getNextId());
             taskMap.put(task.getId(), task);
             prioritizedTasks.add(task);
         } catch (InvalidTaskStartTimeException e) {
-            System.out.println(e.getMessage());
+            throw new InvalidTaskStartTimeException(e.getMessage());
         }
         return task;
     }
@@ -115,28 +115,21 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public Epic addNewEpic(Epic epic) {
         epic.setId(getNextId());
-        try {
-            validateTask(epic);
-            epicMap.put(epic.getId(), epic);
-        } catch (InvalidTaskStartTimeException e) {
-            System.out.println(e.getMessage());
-        }
+        epicMap.put(epic.getId(), epic);
         return epic;
     }
 
     @Override
     public Subtask addNewSubTask(Subtask subTask) {
-        subTask.setId(getNextId());
         try {
             validateTask(subTask);
+            subTask.setId(getNextId());
             subTaskMap.put(subTask.getId(), subTask);
             prioritizedTasks.add(subTask);
             epicMap.get(subTask.getEpicId()).getSubTasksId().add(subTask.getId());
-            updateEpicStatus(subTask.getEpicId());
-            setStartDateTime(subTask.getEpicId());
-            setEndDateTime(subTask.getEpicId());
+            updateEpicTimeAndStatus(subTask.getEpicId());
         } catch (InvalidTaskStartTimeException e) {
-            System.out.println(e.getMessage());
+            throw new InvalidTaskStartTimeException(e.getMessage());
         }
         return subTask;
     }
@@ -161,9 +154,7 @@ public class InMemoryTaskManager implements TaskManager {
             validateTask(subTask);
             subTaskMap.put(subTask.getId(), subTask);
             prioritizedTasks.add(subTask);
-            updateEpicStatus(subTask.getEpicId());
-            setStartDateTime(subTask.getEpicId());
-            setEndDateTime(subTask.getEpicId());
+            updateEpicTimeAndStatus(subTask.getEpicId());
         } catch (InvalidTaskStartTimeException e) {
             System.out.println(e.getMessage());
         }
@@ -172,16 +163,10 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Epic updateEpic(Epic epic) {
-        try {
-            validateTask(epic);
-            Epic oldEpic = epicMap.get(epic.getId());
-            ArrayList<Integer> subtasks = oldEpic.getSubTasksId();
-            epic.setSubTasksId(subtasks);
-            epicMap.put(epic.getId(), epic);
-        } catch (InvalidTaskStartTimeException e) {
-            System.out.println(e.getMessage());
-        }
-
+        Epic oldEpic = epicMap.get(epic.getId());
+        ArrayList<Integer> subtasks = oldEpic.getSubTasksId();
+        epic.setSubTasksId(subtasks);
+        epicMap.put(epic.getId(), epic);
         return epic;
     }
 
@@ -215,9 +200,7 @@ public class InMemoryTaskManager implements TaskManager {
             int epicId = subtask.getEpicId();
             Epic epic = epicMap.get(epicId);
             epic.removeSubTask(id);
-            updateEpicStatus(epicId);
-            setStartDateTime(epicId);
-            setEndDateTime(epicId);
+            updateEpicTimeAndStatus(epicId);
             historyManager.remove(id);
             prioritizedTasks.remove(subTaskMap.get(id));
         }
@@ -251,37 +234,51 @@ public class InMemoryTaskManager implements TaskManager {
         Epic epic = epicMap.get(epicId);
         List<Status> statusList = epic.getSubTasksId().stream().map(id ->
                 subTaskMap.get(id).getStatus()).collect(Collectors.toList());
-        if (!statusList.contains(Status.IN_PROGRESS) && !statusList.contains(Status.NEW))
+        if (!statusList.contains(Status.IN_PROGRESS) && !statusList.contains(Status.NEW)) {
             summaryStatus = Status.DONE;
-        else if (!statusList.contains(Status.IN_PROGRESS) && !statusList.contains(Status.DONE))
+        } else if (!statusList.contains(Status.IN_PROGRESS) && !statusList.contains(Status.DONE)) {
             summaryStatus = Status.NEW;
-        else
+        } else {
             summaryStatus = Status.IN_PROGRESS;
-
+        }
         epic.setStatus(summaryStatus);
     }
 
-    private void setStartDateTime(int epicId) {
+    private void updateEpicStartTime(int epicId) {
         Epic epic = epicMap.get(epicId);
         LocalDateTime startTime = epic.getSubTasksId().stream()
                 .map(subTaskMap::get)
                 .map(Task::getStartTime)
-                .sorted(Comparator.naturalOrder())
-                .collect(Collectors.toList())
-                .getFirst();
+                .sorted(Comparator.naturalOrder()).findFirst().get();
         epic.setStartTime(startTime);
     }
 
-    private void setEndDateTime(int epicId) {
+    private void updateEpicEndTime(int epicId) {
         Epic epic = epicMap.get(epicId);
         LocalDateTime endTime = epic.getSubTasksId().stream()
                 .map(subTaskMap::get)
-                .map(Task::getEndTime)
+                .map(Task::calcEndTime)
                 .sorted(Comparator.naturalOrder())
                 .collect(Collectors.toList())
                 .getLast();
-        Duration duration = Duration.between(epic.getStartTime(), endTime);
-        epic.setDuration(duration);
+        epic.setEndTime(endTime);
+    }
+
+    private void updateEpicDuration(int epicId) {
+        Epic epic = epicMap.get(epicId);
+        Long duration = epic.getSubTasksId().stream()
+                .mapToLong(id ->
+                        subTaskMap.get(id).getDuration().toMinutes()
+                )
+                .sum();
+        epic.setDuration(Duration.ofMinutes(duration));
+    }
+
+    private void updateEpicTimeAndStatus(int epicId) {
+        updateEpicStatus(epicId);
+        updateEpicStartTime(epicId);
+        updateEpicEndTime(epicId);
+        updateEpicDuration(epicId);
     }
 
     @Override
@@ -290,28 +287,51 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     private void validateTask(Task task) throws InvalidTaskStartTimeException {
-        List<Task> collected = prioritizedTasks.stream()
-                .filter(task1 ->
-                        (task.getStartTime().isAfter(task1.getStartTime())
-                                && task.getStartTime().isBefore(task1.getEndTime())
-                        )
-                                || (task.getEndTime().isAfter(task1.getStartTime())
-                                && task.getEndTime().isBefore(task1.getEndTime())
-                        ) || (task.getStartTime().isBefore(task1.getStartTime())
-                                && task.getEndTime().isAfter(task1.getEndTime())
-                        )
-                )
-                .collect(Collectors.toList()
-                );
-
-
-        if (!collected.isEmpty()) {
-            throw new InvalidTaskStartTimeException(
-                    "Задача id=" + task.getId()
-                            + " имеет общеее пересечение времени с задачами "
-                            + collected.stream().map(c -> c.getId()).collect(Collectors.toList())
-            );
+        Optional intersectionTask =
+                prioritizedTasks.stream()
+                        .filter(t1 -> (!isTaskEquals(t1, task) && hasIntersection(t1, task)))
+                        .findAny();
+        if (intersectionTask.isPresent()) {
+            throw new InvalidTaskStartTimeException("Задача имеет общеее пересечение по времени");
         }
     }
+
+    private boolean isTaskEquals(Task t1, Task t2) {
+        // если у таска хотят изменить время или длительность,
+        // то такие таски нужно проверять на пересечение
+        return t1.equals(t2)
+                && t1.getStartTime().isEqual(t1.getStartTime())
+                && t1.getDuration().equals(t2.getDuration());
+    }
+
+
+    private boolean isStartTimeInside(Task t1, Task t2) {
+        return t2.getStartTime().isAfter(t1.getStartTime())
+                && t2.getStartTime().isBefore(t1.calcEndTime());
+
+    }
+
+    private boolean isEndTimeInside(Task t1, Task t2) {
+        return t2.calcEndTime().isAfter(t1.getStartTime())
+                && t2.calcEndTime().isBefore(t1.calcEndTime());
+    }
+
+    private boolean isStartAndEndTimeOutside(Task t1, Task t2) {
+        return t2.getStartTime().isBefore(t1.getStartTime())
+                && t2.calcEndTime().isAfter(t1.calcEndTime());
+    }
+
+    private boolean isTimeEquals(Task t1, Task t2) {
+        return t2.getStartTime().isEqual(t1.calcEndTime())
+                || t2.calcEndTime().isEqual(t1.getStartTime());
+    }
+
+    private boolean hasIntersection(Task t1, Task t2) {
+        return isStartTimeInside(t1, t2)
+                || isEndTimeInside(t1, t2)
+                || isStartAndEndTimeOutside(t1, t2)
+                || isTimeEquals(t1, t2);
+    }
+
 
 }

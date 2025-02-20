@@ -13,7 +13,7 @@ public class CsvConverter {
     }
 
     public static String toCSV(Subtask subtask) {
-        return String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s\n",
+        return String.format("%s,%s,%s,%s,%s,%s,%s,%s\n",
                 subtask.getId(),
                 TaskType.SUBTASK,
                 subtask.getName(),
@@ -21,33 +21,30 @@ public class CsvConverter {
                 subtask.getDescription(),
                 subtask.getEpicId(),
                 subtask.getStartTime(),
-                subtask.getEndTime(),
                 subtask.getDuration().toMinutes()
         );
     }
 
     public static String toCSV(Task task) {
-        return String.format("%s,%s,%s,%s,%s,,%s,%s,%s\n",
+        return String.format("%s,%s,%s,%s,%s,,%s,%s\n",
                 task.getId(),
                 TaskType.TASK,
                 task.getName(),
                 task.getStatus(),
                 task.getDescription(),
                 task.getStartTime(),
-                task.getEndTime(),
                 task.getDuration().toMinutes()
         );
     }
 
     public static String toCSV(Epic epic) {
-        return String.format("%s,%s,%s,%s,%s,,%s,%s,%s\n",
+        return String.format("%s,%s,%s,%s,%s,,%s,%s\n",
                 epic.getId(),
                 TaskType.EPIC,
                 epic.getName(),
                 epic.getStatus(),
                 epic.getDescription(),
                 epic.getStartTime(),
-                epic.getEndTime(),
                 epic.getDuration().toMinutes()
         );
     }
@@ -61,9 +58,8 @@ public class CsvConverter {
                 params[4],
                 Status.valueOf(params[3]),
                 Integer.parseInt(params[5]),
-                Duration.ofMinutes(Long.parseLong(params[8])),
+                Duration.ofMinutes(Long.parseLong(params[7])),
                 LocalDateTime.parse(params[6])
-
         );
 
     }
@@ -74,7 +70,7 @@ public class CsvConverter {
                 params[2],
                 params[4],
                 Status.valueOf(params[3]),
-                Duration.ofMinutes(Long.parseLong(params[8])),
+                Duration.ofMinutes(Long.parseLong(params[7])),
                 LocalDateTime.parse(params[6])
         );
     }
@@ -85,7 +81,7 @@ public class CsvConverter {
                 params[2],
                 params[4],
                 Status.valueOf(params[3]),
-                Duration.ofMinutes(Long.parseLong(params[8])),
+                Duration.ofMinutes(Long.parseLong(params[7])),
                 LocalDateTime.parse(params[6])
         );
     }

@@ -1,3 +1,4 @@
+import exception.InvalidTaskStartTimeException;
 import exception.ManagerSaveException;
 import manager.FileBackedTaskManager;
 import manager.TaskManager;
@@ -215,8 +216,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
                 LocalDateTime.now()
         );
         taskManager.addNewTask(task2);
-        taskManager.addNewTask(task1);
-        assertEquals(Optional.empty(), taskManager.getTaskById(task1.getId()));
+        assertThrows(InvalidTaskStartTimeException.class,() -> taskManager.addNewTask(task1));
     }
 
     @Test

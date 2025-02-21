@@ -21,9 +21,6 @@ import java.util.stream.Collectors;
 import static org.junit.jupiter.api.Assertions.*;
 
 abstract class TaskManagerTest<T extends TaskManager> {
-    private Task task1;
-    private Task task2;
-    private Epic epic1;
     private Task task;
     private static int epicId;
     private static int taskId;
@@ -34,24 +31,20 @@ abstract class TaskManagerTest<T extends TaskManager> {
     public abstract T getTaskManager();
 
     @BeforeEach
-    void setUp() throws ManagerSaveException {
+    void setUp() {
         taskManager = getTaskManager();
         task = new Task("Купить хлеб",
                 "важное дело",
                 Status.NEW,
                 Duration.ofMinutes(10),
-                LocalDateTime.now().minusHours(8)
+                LocalDateTime.now().minusDays(7)
         );
-        epic1 = new Epic("Помыть кота", "с шампунем");
-        epicId = taskManager.addNewEpic(epic1).getId();
         taskId = taskManager.addNewTask(task).getId();
     }
 
     @Test
     void addNewTaskAndReturnByIdAndCheckEquals() {
         final Optional<Task> savedTask = taskManager.getTaskById(taskId);
-        System.out.println(savedTask);
-        System.out.println(savedTask.isPresent());
 
         assertNotNull(savedTask.get(), "таск не найден.");
         assertEquals(task, savedTask.get(), "таски не совпадают.");
@@ -65,6 +58,8 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
     void addNewSubTaskAndReturnByIdAndCheckEquals() throws ManagerSaveException {
+        Epic epic1 = new Epic("Помыть кота", "с шампунем");
+        epicId = taskManager.addNewEpic(epic1).getId();
         Subtask subtask = new Subtask("нарезать салат",
                 "из овощей",
                 Status.NEW, epicId,
@@ -87,6 +82,8 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
     void addNewEpicAndReturnByIdAndCheckEquals() {
+        Epic epic1 = new Epic("Помыть кота", "с шампунем");
+        epicId = taskManager.addNewEpic(epic1).getId();
         final Optional<Epic> savedEpic = taskManager.getEpicById(epicId);
         assertNotNull(savedEpic.get(), "эпик не найден.");
         assertEquals(epic1, savedEpic.get(), "эпики не совпадают.");
@@ -111,8 +108,6 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
     void returnAfterRemoveTask() throws ManagerSaveException {
-        taskManager.removeEpics();
-        taskManager.removeTasks();
         Task task1 = new Task("Купить овощи",
                 "важное дело",
                 Status.NEW,
@@ -127,9 +122,9 @@ abstract class TaskManagerTest<T extends TaskManager> {
         );
         taskManager.addNewTask(task1);
         taskManager.addNewTask(task2);
-        assertEquals(2, taskManager.getAllTasks().size());
+        assertEquals(3, taskManager.getAllTasks().size());
         taskManager.removeTaskById(task1.getId());
-        assertEquals(1, taskManager.getAllTasks().size(), "Не удален таск");
+        assertEquals(2, taskManager.getAllTasks().size(), "Не удален таск");
         assertNotEquals(1, taskManager.getAllTasks().get(0), "Не удален нужный таск");
         taskManager.removeTasks();
         assertEquals(0, taskManager.getAllTasks().size(), "Не пустой");
@@ -137,8 +132,11 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
     void generateIdAfterAddTaskWithCustomId() throws ManagerSaveException {
-        Task task1 = new Task(100, "Купить овощи", "важное дело",
-                Status.NEW, Duration.ofMinutes(80), LocalDateTime.now());
+        Task task1 = new Task(100,
+                "Купить овощи",
+                "важное дело",
+                Status.NEW, Duration.ofMinutes(80),
+                LocalDateTime.now());
         taskManager.addNewTask(task1);
         assertNotEquals(100, task.getId(), "Id равны");
     }
@@ -147,9 +145,22 @@ abstract class TaskManagerTest<T extends TaskManager> {
     void removeSubTaskFromEpic() throws ManagerSaveException {
         Epic epic = new Epic("Купить овощи", "важное дело");
         taskManager.addNewEpic(epic);
-        Subtask subtask1 = new Subtask("Купить бобы", "важное дело", Status.NEW, epic.getId());
-        Subtask subtask2 = new Subtask("Купить помидоры", "важное дело", Status.NEW, epic.getId());
-        Subtask subtask3 = new Subtask("Купить огурцы", "важное дело", Status.NEW, epic.getId());
+        Subtask subtask1 = new Subtask("Купить бобы",
+                "важное дело",
+                Status.NEW,
+                epic.getId(),
+                Duration.ofMinutes(5),
+                LocalDateTime.now());
+        Subtask subtask2 = new Subtask("Купить помидоры",
+                "важное дело",
+                Status.NEW, epic.getId(),
+                Duration.ofMinutes(5),
+                LocalDateTime.now().minusHours(1));
+        Subtask subtask3 = new Subtask("Купить огурцы",
+                "важное дело",
+                Status.NEW, epic.getId(),
+                Duration.ofMinutes(5),
+                LocalDateTime.now().plusHours(2));
         taskManager.addNewSubTask(subtask1);
         taskManager.addNewSubTask(subtask2);
         taskManager.addNewSubTask(subtask3);
@@ -160,10 +171,22 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
     void calcEpicStatus() throws ManagerSaveException {
+
         Epic epic = new Epic("Купить овощи", "важное дело");
         taskManager.addNewEpic(epic);
-        Subtask subtask1 = new Subtask("Купить бобы", "важное дело", Status.NEW, epic.getId());
-        Subtask subtask2 = new Subtask("Купить помидоры", "важное дело", Status.NEW, epic.getId());
+
+        Subtask subtask1 = new Subtask("Купить бобы",
+                "важное дело",
+                Status.NEW,
+                epic.getId(),
+                Duration.ofMinutes(1),
+                LocalDateTime.now());
+        Subtask subtask2 = new Subtask("Купить помидоры",
+                "важное дело",
+                Status.NEW,
+                epic.getId(),
+                Duration.ofMinutes(1),
+                LocalDateTime.now().plusMinutes(5));
 
         taskManager.addNewSubTask(subtask1);
         taskManager.addNewSubTask(subtask2);
@@ -173,26 +196,63 @@ abstract class TaskManagerTest<T extends TaskManager> {
                 "Статус не равен NEW");
 
         taskManager.removeSubTasks();
-        subtask1 = new Subtask("Купить бобы", "важное дело", Status.DONE, epic.getId());
-        subtask2 = new Subtask("Купить помидоры", "важное дело", Status.DONE, epic.getId());
+
+        subtask1 = new Subtask("Купить бобы",
+                "важное дело",
+                Status.DONE,
+                epic.getId(),
+                Duration.ofMinutes(1),
+                LocalDateTime.now());
+        subtask2 = new Subtask("Купить помидоры",
+                "важное дело",
+                Status.DONE,
+                epic.getId(),
+                Duration.ofMinutes(1),
+                LocalDateTime.now().plusMinutes(5));
+
         taskManager.addNewSubTask(subtask1);
         taskManager.addNewSubTask(subtask2);
+
         assertEquals(Status.DONE,
                 taskManager.getEpicById(epic.getId()).get().getStatus(),
                 "Статус не равен DONE");
 
         taskManager.removeSubTasks();
-        subtask1 = new Subtask("Купить бобы", "важное дело", Status.DONE, epic.getId());
-        subtask2 = new Subtask("Купить помидоры", "важное дело", Status.NEW, epic.getId());
+
+        subtask1 = new Subtask("Купить бобы",
+                "важное дело",
+                Status.DONE,
+                epic.getId(),
+                Duration.ofMinutes(5),
+                LocalDateTime.now());
+        subtask2 = new Subtask("Купить помидоры",
+                "важное дело",
+                Status.NEW,
+                epic.getId(),
+                Duration.ofMinutes(5),
+                LocalDateTime.now().plusMinutes(30));
+
         taskManager.addNewSubTask(subtask1);
         taskManager.addNewSubTask(subtask2);
+
         assertEquals(Status.IN_PROGRESS,
                 taskManager.getEpicById(epic.getId()).get().getStatus(),
                 "Статус не равен DONE");
 
         taskManager.removeSubTasks();
-        subtask1 = new Subtask("Купить бобы", "важное дело", Status.IN_PROGRESS, epic.getId());
-        subtask2 = new Subtask("Купить помидоры", "важное дело", Status.IN_PROGRESS, epic.getId());
+
+        subtask1 = new Subtask("Купить бобы",
+                "важное дело",
+                Status.IN_PROGRESS,
+                epic.getId(),
+                Duration.ofMinutes(5),
+                LocalDateTime.now());
+        subtask2 = new Subtask("Купить помидоры",
+                "важное дело",
+                Status.IN_PROGRESS,
+                epic.getId(),
+                Duration.ofMinutes(40),
+                LocalDateTime.now().minusHours(1));
         taskManager.addNewSubTask(subtask1);
         taskManager.addNewSubTask(subtask2);
         assertEquals(Status.IN_PROGRESS,
@@ -202,32 +262,31 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
     void testExceptionTimeForTasks() {
-        //taskManager = Managers.getDefault();
-        task1 = new Task("Купить овощи",
+        Task task1 = new Task("Купить овощи",
                 "важное дело",
                 Status.NEW,
                 Duration.ofMinutes(10),
                 LocalDateTime.now().plusMinutes(5)
         );
-        task2 = new Task("Купить бобы",
+        Task task2 = new Task("Купить бобы",
                 "важное дело",
                 Status.NEW,
                 Duration.ofMinutes(30),
                 LocalDateTime.now()
         );
         taskManager.addNewTask(task2);
-        assertThrows(InvalidTaskStartTimeException.class,() -> taskManager.addNewTask(task1));
+        assertThrows(InvalidTaskStartTimeException.class, () -> taskManager.addNewTask(task1));
     }
 
     @Test
     void testPrioritizedTasks() {
-        task1 = new Task("Купить овощи",
+        Task task1 = new Task("Купить овощи",
                 "важное дело",
                 Status.NEW,
                 Duration.ofMinutes(10),
                 LocalDateTime.now().plusMinutes(55)
         );
-        task2 = new Task("Купить бобы",
+        Task task2 = new Task("Купить бобы",
                 "важное дело",
                 Status.NEW,
                 Duration.ofMinutes(30),
@@ -279,4 +338,30 @@ abstract class TaskManagerTest<T extends TaskManager> {
         assertEquals(fileManager.getSubTaskById(2).get(), newFileManager.getSubTaskById(2).get(), "Не равны");
 
     }
+
+    @Test
+    public void testAddAndRemoveSubTask() {
+        taskManager.removeEpics();
+        taskManager.removeTasks();
+        Epic epic = new Epic("Посетить магазин", "Список покупок ниже");
+        taskManager.addNewEpic(epic);
+        Subtask subtask = new Subtask("Хлеб", "Черный", Status.DONE, epic.getId(), Duration.ofMinutes(8), LocalDateTime.now());
+        taskManager.addNewSubTask(subtask);
+        taskManager.removeSubTaskById(subtask.getId());
+        assertTrue(epic.getSubTasksId().isEmpty());
+    }
+
+    @Test
+    public void testEpicEndTimeFromFile() throws IOException {
+        File tempFile = File.createTempFile("file", "_1");
+        fileManager = FileBackedTaskManager.loadFromFile(tempFile);
+        fileManager.removeEpics();
+        fileManager.removeTasks();
+        Epic epic = new Epic("Посетить магазин", "Список покупок ниже");
+        fileManager.addNewEpic(epic);
+        Subtask subtask = new Subtask("Хлеб", "Черный", Status.DONE, epic.getId(), Duration.ofMinutes(10), LocalDateTime.now());
+        fileManager.addNewSubTask(subtask);
+        assertEquals(epic.getEndTime(), subtask.getStartTime().plus(subtask.getDuration()));
+    }
+
 }

@@ -162,6 +162,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     private static void linkSubtasksToEpics(FileBackedTaskManager fileBackedTaskManager) {
         for (Subtask s : fileBackedTaskManager.subTaskMap.values()) {
             fileBackedTaskManager.epicMap.get(s.getEpicId()).getSubTasksId().add(s.getId());
+            fileBackedTaskManager.updateEpicEndTime(s.getEpicId());
         }
     }
 

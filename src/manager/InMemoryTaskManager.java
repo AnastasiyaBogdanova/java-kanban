@@ -68,11 +68,11 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void removeSubTasks() {
-        subTaskMap.clear();
         subTaskMap.values().stream().forEach(prioritizedTasks::remove);
+        subTaskMap.clear();
         epicMap.values().stream().forEach(epic -> {
             epic.setSubTasksId(new ArrayList<>());
-            epic.setStatus(Status.NEW);
+            updateEpicTimeAndStatus(epic.getId());
         });
     }
 
@@ -101,14 +101,10 @@ public class InMemoryTaskManager implements TaskManager {
     //методы создания новых объектов
     @Override
     public Task addNewTask(Task task) {
-        try {
-            validateTask(task);
-            task.setId(getNextId());
-            taskMap.put(task.getId(), task);
-            prioritizedTasks.add(task);
-        } catch (InvalidTaskStartTimeException e) {
-            throw new InvalidTaskStartTimeException(e.getMessage());
-        }
+        validateTask(task);
+        task.setId(getNextId());
+        taskMap.put(task.getId(), task);
+        prioritizedTasks.add(task);
         return task;
     }
 
@@ -121,43 +117,30 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Subtask addNewSubTask(Subtask subTask) {
-        try {
-            validateTask(subTask);
-            subTask.setId(getNextId());
-            subTaskMap.put(subTask.getId(), subTask);
-            prioritizedTasks.add(subTask);
-            epicMap.get(subTask.getEpicId()).getSubTasksId().add(subTask.getId());
-            updateEpicTimeAndStatus(subTask.getEpicId());
-        } catch (InvalidTaskStartTimeException e) {
-            throw new InvalidTaskStartTimeException(e.getMessage());
-        }
+        validateTask(subTask);
+        subTask.setId(getNextId());
+        subTaskMap.put(subTask.getId(), subTask);
+        prioritizedTasks.add(subTask);
+        epicMap.get(subTask.getEpicId()).getSubTasksId().add(subTask.getId());
+        updateEpicTimeAndStatus(subTask.getEpicId());
         return subTask;
     }
 
     //обновление объектов
     @Override
     public Task updateTask(Task task) {
-        try {
-            validateTask(task);
-            taskMap.put(task.getId(), task);
-            prioritizedTasks.add(task);
-        } catch (InvalidTaskStartTimeException e) {
-            System.out.println(e.getMessage());
-        }
+        validateTask(task);
+        taskMap.put(task.getId(), task);
+        prioritizedTasks.add(task);
         return task;
     }
 
     @Override
     public Subtask updateSubTask(Subtask subTask) {
-
-        try {
-            validateTask(subTask);
-            subTaskMap.put(subTask.getId(), subTask);
-            prioritizedTasks.add(subTask);
-            updateEpicTimeAndStatus(subTask.getEpicId());
-        } catch (InvalidTaskStartTimeException e) {
-            System.out.println(e.getMessage());
-        }
+        validateTask(subTask);
+        subTaskMap.put(subTask.getId(), subTask);
+        prioritizedTasks.add(subTask);
+        updateEpicTimeAndStatus(subTask.getEpicId());
         return subTask;
     }
 
@@ -230,10 +213,13 @@ public class InMemoryTaskManager implements TaskManager {
 
     //метод пересчета статуса в эпике
     private void updateEpicStatus(int epicId) {
-        Status summaryStatus = Status.NEW;
+        Status summaryStatus;
         Epic epic = epicMap.get(epicId);
         List<Status> statusList = epic.getSubTasksId().stream().map(id ->
                 subTaskMap.get(id).getStatus()).collect(Collectors.toList());
+       /* if (statusList.isEmpty()) {
+            summaryStatus = Status.NEW;
+        } else */
         if (!statusList.contains(Status.IN_PROGRESS) && !statusList.contains(Status.NEW)) {
             summaryStatus = Status.DONE;
         } else if (!statusList.contains(Status.IN_PROGRESS) && !statusList.contains(Status.DONE)) {
@@ -246,22 +232,32 @@ public class InMemoryTaskManager implements TaskManager {
 
     private void updateEpicStartTime(int epicId) {
         Epic epic = epicMap.get(epicId);
-        LocalDateTime startTime = epic.getSubTasksId().stream()
-                .map(subTaskMap::get)
-                .map(Task::getStartTime)
-                .sorted(Comparator.naturalOrder()).findFirst().get();
-        epic.setStartTime(startTime);
+        if (!epic.getSubTasksId().isEmpty()) {
+            LocalDateTime startTime = epic.getSubTasksId().stream()
+                    .map(subTaskMap::get)
+                    .map(Task::getStartTime)
+                    .sorted(Comparator.naturalOrder())
+                    .findFirst()
+                    .get();
+            epic.setStartTime(startTime);
+        } else {
+            epic.setStartTime(null);
+        }
     }
 
-    private void updateEpicEndTime(int epicId) {
+    protected void updateEpicEndTime(int epicId) {
         Epic epic = epicMap.get(epicId);
-        LocalDateTime endTime = epic.getSubTasksId().stream()
-                .map(subTaskMap::get)
-                .map(Task::calcEndTime)
-                .sorted(Comparator.naturalOrder())
-                .collect(Collectors.toList())
-                .getLast();
-        epic.setEndTime(endTime);
+        if (!epic.getSubTasksId().isEmpty()) {
+            LocalDateTime endTime = epic.getSubTasksId().stream()
+                    .map(subTaskMap::get)
+                    .map(Task::calcEndTime)
+                    .sorted(Comparator.naturalOrder())
+                    .collect(Collectors.toList())
+                    .getLast();
+            epic.setEndTime(endTime);
+        } else {
+            epic.setEndTime(null);
+        }
     }
 
     private void updateEpicDuration(int epicId) {
@@ -297,11 +293,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     private boolean isTaskEquals(Task t1, Task t2) {
-        // если у таска хотят изменить время или длительность,
-        // то такие таски нужно проверять на пересечение
-        return t1.equals(t2)
-                && t1.getStartTime().isEqual(t1.getStartTime())
-                && t1.getDuration().equals(t2.getDuration());
+        return t1.equals(t2);
     }
 
 

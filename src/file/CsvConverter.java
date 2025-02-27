@@ -2,41 +2,50 @@ package file;
 
 import task.*;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+
 public class CsvConverter {
-    static final String title = "id,type,name,status,description,epic\n";
+    static final String title = "id,type,name,status,description,epic,StartTime,EndTime,Duration\n";
 
     public static String getTitle() {
         return title;
     }
 
     public static String toCSV(Subtask subtask) {
-        return String.format("%s,%s,%s,%s,%s,%s\n",
+        return String.format("%s,%s,%s,%s,%s,%s,%s,%s\n",
                 subtask.getId(),
                 TaskType.SUBTASK,
                 subtask.getName(),
                 subtask.getStatus(),
                 subtask.getDescription(),
-                subtask.getEpicId()
+                subtask.getEpicId(),
+                subtask.getStartTime(),
+                subtask.getDuration().toMinutes()
         );
     }
 
     public static String toCSV(Task task) {
-        return String.format("%s,%s,%s,%s,%s\n",
+        return String.format("%s,%s,%s,%s,%s,,%s,%s\n",
                 task.getId(),
                 TaskType.TASK,
                 task.getName(),
                 task.getStatus(),
-                task.getDescription()
+                task.getDescription(),
+                task.getStartTime(),
+                task.getDuration().toMinutes()
         );
     }
 
     public static String toCSV(Epic epic) {
-        return String.format("%s,%s,%s,%s,%s\n",
+        return String.format("%s,%s,%s,%s,%s,,%s,%s\n",
                 epic.getId(),
                 TaskType.EPIC,
                 epic.getName(),
                 epic.getStatus(),
-                epic.getDescription()
+                epic.getDescription(),
+                epic.getStartTime(),
+                epic.getDuration().toMinutes()
         );
     }
 
@@ -44,22 +53,37 @@ public class CsvConverter {
     public static Subtask subtaskFromString(String value) {
         String[] params = value.split(",");
         return new Subtask(
-                Integer.parseInt(value.split(",")[0]),
+                Integer.parseInt(params[0]),
                 params[2],
                 params[4],
                 Status.valueOf(params[3]),
-                Integer.parseInt(params[5])
+                Integer.parseInt(params[5]),
+                Duration.ofMinutes(Long.parseLong(params[7])),
+                LocalDateTime.parse(params[6])
         );
+
     }
 
     public static Task taskFromString(String value) {
         String[] params = value.split(",");
-        return new Task(Integer.parseInt(value.split(",")[0]), params[2], params[4], Status.valueOf(params[3]));
+        return new Task(Integer.parseInt(params[0]),
+                params[2],
+                params[4],
+                Status.valueOf(params[3]),
+                Duration.ofMinutes(Long.parseLong(params[7])),
+                LocalDateTime.parse(params[6])
+        );
     }
 
     public static Epic epicFromString(String value) {
         String[] params = value.split(",");
-        return new Epic(Integer.parseInt(value.split(",")[0]), params[2], params[4]);
+        return new Epic(Integer.parseInt(params[0]),
+                params[2],
+                params[4],
+                Status.valueOf(params[3]),
+                Duration.ofMinutes(Long.parseLong(params[7])),
+                LocalDateTime.parse(params[6])
+        );
     }
 
     public static int getId(String value) {

@@ -9,6 +9,8 @@ import task.Status;
 import task.Subtask;
 import task.Task;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -24,16 +26,18 @@ class InMemoryHistoryManagerTest {
 
     @Test
     void getHistory() {
-        Task task = new Task(1, "Покормить кота", "кормом", Status.NEW);
+        Task task = new Task(1, "Покормить кота", "кормом", Status.NEW, Duration.ofMinutes(80), LocalDateTime.now());
         historyManager.add(task);
-        Task taskExpected = new Task(1, "Покормить кота", "кормом", Status.NEW);
+        Task taskExpected = new Task(1, "Покормить кота", "кормом",
+                Status.NEW, Duration.ofMinutes(80), LocalDateTime.now());
         final List<Task> history = historyManager.getHistory();
         assertEquals(taskExpected, history.get(0), "Не равны");
     }
 
     @Test
     void addObjectInHistory() {
-        Task task = new Task(1, "Покормить кота", "кормом", Status.NEW);
+        Task task = new Task(1, "Покормить кота", "кормом", Status.NEW,
+                Duration.ofMinutes(80), LocalDateTime.now());
         historyManager.add(task);
         final List<Task> history = historyManager.getHistory();
         assertNotNull(history, "История не пустая.");
@@ -43,11 +47,21 @@ class InMemoryHistoryManagerTest {
     @Test
     void addEqualsObjectInHistory() {
         // при добавлении такого же элемента более ранний должен удалиться
-        Task task1 = new Task(1, "Покормить кота", "кормом", Status.NEW);
-        Task task2 = new Task(2, "Покормить собаку", "кормом", Status.NEW);
+        Task task1 = new Task(1, "Покормить кота", "кормом",
+                Status.NEW,
+                Duration.ofMinutes(80),
+                LocalDateTime.now());
+        Task task2 = new Task(2, "Покормить собаку", "кормом",
+                Status.NEW, Duration.ofMinutes(80), LocalDateTime.now());
 
-        Task taskExpected1 = new Task(2, "Покормить собаку", "кормом", Status.NEW);
-        Task taskExpected2 = new Task(1, "Покормить кота", "кормом", Status.NEW);
+        Task taskExpected1 = new Task(2, "Покормить собаку", "кормом",
+                Status.NEW,
+                Duration.ofMinutes(80),
+                LocalDateTime.now());
+        Task taskExpected2 = new Task(1, "Покормить кота", "кормом",
+                Status.NEW,
+                Duration.ofMinutes(80),
+                LocalDateTime.now());
 
         historyManager.add(task1);
         historyManager.add(task2);
@@ -60,7 +74,7 @@ class InMemoryHistoryManagerTest {
 
     @Test
     void versionHistoryManager() throws ManagerSaveException { //если изменить что-то в таске, просмотреть таск, то останется 1 таск с обновленными полями
-        Task task = new Task(1, "Покормить кота", "кормом", Status.NEW);
+        Task task = new Task(1, "Покормить кота", "кормом", Status.NEW, Duration.ofMinutes(10), LocalDateTime.now());
         historyManager.add(task);
         TaskManager manager = Managers.getDefault();
         manager.addNewTask(task);
@@ -74,13 +88,19 @@ class InMemoryHistoryManagerTest {
     void removeAllEpicsWithSubtasksFromHistory() throws ManagerSaveException {
         TaskManager manager = Managers.getDefault();
 
-        Task task0 = new Task("Покормить кота", "кормом", Status.NEW);
+        Task task0 = new Task("Покормить кота",
+                "кормом",
+                Status.NEW,
+                Duration.ofMinutes(10),
+                LocalDateTime.now().plusDays(6));
         Epic epic1 = new Epic("Подготовка к НГ", "Список дел");
         manager.addNewTask(task0);
         manager.addNewEpic(epic1);
 
-        Subtask subtask2 = new Subtask("Купить елку", "На рынке", Status.NEW, epic1.getId());
-        Subtask subtask3 = new Subtask("Заказать игрушки", "На озоне или вб", Status.NEW, epic1.getId());
+        Subtask subtask2 = new Subtask("Купить елку", "На рынке",
+                Status.NEW, epic1.getId(), Duration.ofMinutes(10), LocalDateTime.now().minusHours(5));
+        Subtask subtask3 = new Subtask("Заказать игрушки", "На озоне или вб",
+                Status.NEW, epic1.getId(), Duration.ofMinutes(10), LocalDateTime.now().minusHours(16));
         manager.addNewSubTask(subtask2);
         manager.addNewSubTask(subtask3);
 

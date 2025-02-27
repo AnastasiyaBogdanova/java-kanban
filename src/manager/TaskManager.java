@@ -7,6 +7,8 @@ import task.Task;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 public interface TaskManager {
 
@@ -25,11 +27,11 @@ public interface TaskManager {
     void removeSubTasks() throws ManagerSaveException;
 
     //получение объектов по id
-    Task getTaskById(int id);
+    Optional<Task> getTaskById(int id);
 
-    Subtask getSubTaskById(int id);
+    Optional<Subtask> getSubTaskById(int id);
 
-    Epic getEpicById(int id);
+    Optional<Epic> getEpicById(int id);
 
     //методы создания новых объектов
     Task addNewTask(Task task);
@@ -56,5 +58,7 @@ public interface TaskManager {
     ArrayList<Subtask> getSubtasksByEpic(int epicId);
 
     List<Task> getHistory();
+
+    Set<Task> getPrioritizedTasks();
 
 }

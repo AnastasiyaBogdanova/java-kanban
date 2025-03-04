@@ -1,4 +1,7 @@
+package manager;
+
 import manager.FileBackedTaskManager;
+import manager.TaskManagerTest;
 
 import java.io.File;
 import java.io.IOException;

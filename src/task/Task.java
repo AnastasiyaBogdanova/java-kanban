@@ -125,9 +125,9 @@ public class Task {
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", description='" + description + '\'' +
-                ", status=" + status + '\'' +
-                ", duration=" + duration.toMinutes() + '\'' +
-                ", startTime=" + startTime + '\'' +
+                ", status='" + status + '\'' +
+                ", duration='" + duration + '\'' +
+                ", startTime='" + startTime + '\'' +
                 '}';
     }
 

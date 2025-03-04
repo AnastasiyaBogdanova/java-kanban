@@ -50,9 +50,9 @@ public class Epic extends Task {
                 ", id=" + id +
                 ", name='" + name + '\'' +
                 ", description='" + description + '\'' +
-                ", status=" + status + '\'' +
-                ", duration=" + duration.toMinutes() + '\'' +
-                ", startTime=" + startTime + '\'' +
+                ", status='" + status + '\'' +
+                ", duration='" + duration.toMinutes() + '\'' +
+                ", startTime='" + startTime + '\'' +
                 '}';
     }
 

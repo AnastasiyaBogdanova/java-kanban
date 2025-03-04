@@ -1,7 +1,6 @@
+package manager;
+
 import exception.ManagerSaveException;
-import manager.HistoryManager;
-import manager.Managers;
-import manager.TaskManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import task.Epic;
@@ -109,7 +108,6 @@ class InMemoryHistoryManagerTest {
         manager.getEpicById(epic1.getId());
 
         assertEquals(3, manager.getHistory().size(), "Не все добавлено в историю");
-
         manager.removeEpicById(epic1.getId());
 
         assertEquals(1, manager.getHistory().size(), "Сабтаск не удален");

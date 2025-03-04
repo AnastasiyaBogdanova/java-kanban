@@ -17,29 +17,26 @@ import java.time.LocalDateTime;
 public class HttpTaskServer {
     private static final int PORT = 8080;
     private static HttpServer httpServer;
-    private static TaskManager manager;
+    private TaskManager manager;
 
     public HttpTaskServer(TaskManager manager) throws IOException {
         this.manager = manager;
-        createServer();
+        createServer(manager);
     }
 
-    public static TaskManager getManager() {
-        return manager;
-    }
 
     public static void main(String[] args) throws IOException {
         HttpTaskServer server = new HttpTaskServer(Managers.getDefault());
         start();
     }
 
-    public static void createServer() throws IOException {
+    public static void createServer(TaskManager manager) throws IOException {
         httpServer = HttpServer.create(new InetSocketAddress(PORT), 0);
-        httpServer.createContext("/tasks", new TaskHandler());
-        httpServer.createContext("/subtasks", new SubTaskHandler());
-        httpServer.createContext("/epics", new EpicHandler());
-        httpServer.createContext("/history", new HistoryHandler());
-        httpServer.createContext("/prioritized", new PrioritizedHandler());
+        httpServer.createContext("/tasks", new TaskHandler(manager));
+        httpServer.createContext("/subtasks", new SubTaskHandler(manager));
+        httpServer.createContext("/epics", new EpicHandler(manager));
+        httpServer.createContext("/history", new HistoryHandler(manager));
+        httpServer.createContext("/prioritized", new PrioritizedHandler(manager));
     }
 
     public static void start() {

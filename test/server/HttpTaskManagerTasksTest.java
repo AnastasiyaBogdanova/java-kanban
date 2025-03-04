@@ -1,6 +1,7 @@
 package server;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import manager.InMemoryTaskManager;
 import manager.TaskManager;
 import org.junit.jupiter.api.AfterEach;
@@ -13,6 +14,7 @@ import task.Subtask;
 import task.Task;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -367,4 +369,5 @@ public class HttpTaskManagerTasksTest {
         Assertions.assertEquals(200, response.statusCode(), "Статус код должен быть 200");
         Assertions.assertEquals(gson.toJson(manager.getHistory()), response.body(), "Ответ не совпадает с ожидаемым");
     }
+
 }

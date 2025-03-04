@@ -4,12 +4,19 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.sun.net.httpserver.HttpExchange;
+import manager.TaskManager;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
 public class BaseHttpHandler {
+    TaskManager taskManager;
+
+    public BaseHttpHandler(TaskManager taskManager) {
+        this.taskManager = taskManager;
+    }
+
     protected void sendText(HttpExchange h, String text) throws IOException {
         byte[] resp = text.getBytes(StandardCharsets.UTF_8);
         h.getResponseHeaders().add("Content-Type", "application/json;charset=utf-8");
@@ -46,14 +53,6 @@ public class BaseHttpHandler {
         } else {
             return Optional.empty();
         }
-    }
-
-    protected boolean isSubtaskEndpoint(HttpExchange exchange) {
-        String path = exchange.getRequestURI().getPath();
-        if (path.split("/").length == 4 && path.split("/")[3].equals("subtasks")) {
-            return true;
-        }
-        return false;
     }
 
     protected Optional<Integer> getIdFromJson(String task) {
